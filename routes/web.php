@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HelloController;
+use App\Http\Controllers\InputController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -66,4 +67,22 @@ Route::get('produk-redirect/{id}', function ($id) {
 });
 
 // Controller
+Route::get('controller/hello/request', [HelloController::class, 'request']); // Request
 Route::get('controller/hello/{name}', [HelloController::class, 'hello']);
+
+// Request Input
+Route::get('/input/hello', [InputController::class, 'hello']);
+Route::post('/input/hello', [InputController::class, 'hello']);
+
+// Request Nested Input
+Route::post('/input/hello/first', [InputController::class, 'helloFirstName']);
+Route::post('/input/hello/input', [InputController::class, 'helloInput']);
+Route::post('/input/hello/array', [InputController::class, 'helloArray']);
+
+// Input Type
+Route::post('/input/type', [InputController::class, 'inputType']);
+
+// Input Filter
+Route::post('/input/filter/only', [InputController::class, 'filterOnly']);
+Route::post('/input/filter/except', [InputController::class, 'filterExcept']);
+Route::post('/input/filter/merge', [InputController::class, 'filterMerge']);
