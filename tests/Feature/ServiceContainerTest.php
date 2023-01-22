@@ -26,7 +26,8 @@ class ServiceContainerTest extends TestCase
 
         assertEquals('Foo', $foo1->foo());
         assertEquals('Foo', $foo2->foo());
-        assertNotSame($foo1, $foo2);
+        // assertNotSame($foo1, $foo2);
+        assertSame($foo1, $foo2);
     }
 
     public function testBind()

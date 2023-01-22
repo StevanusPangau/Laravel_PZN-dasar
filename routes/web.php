@@ -7,8 +7,10 @@ use App\Http\Controllers\HelloController;
 use App\Http\Controllers\InputController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\ResponseController;
+use App\Http\Controllers\SessionController;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 
 Route::get('/', function () {
     return view('welcome');
@@ -101,16 +103,22 @@ Route::post('/file/upload', [FileController::class, 'upload'])
 Route::get('/response/hello', [ResponseController::class, 'response']);
 Route::get('/response/header', [ResponseController::class, 'header']);
 
-// Response Type
-Route::get('/response/type/view', [ResponseController::class, 'responseView']);
-Route::get('/response/type/json', [ResponseController::class, 'responseJson']);
-Route::get('/response/type/file', [ResponseController::class, 'responseFile']);
-Route::get('/response/type/download', [ResponseController::class, 'responseDownload']);
+// Route Group
+Route::prefix('/response/type')->group(function () {
+    // Response Type
+    Route::get('/view', [ResponseController::class, 'responseView']);
+    Route::get('/json', [ResponseController::class, 'responseJson']);
+    Route::get('/file', [ResponseController::class, 'responseFile']);
+    Route::get('/download', [ResponseController::class, 'responseDownload']);
+});
 
-// Cookie
-Route::get('/cookie/set', [CookieController::class, 'createCookie']);
-Route::get('/cookie/get', [CookieController::class, 'getCookie']);
-Route::get('/cookie/clear', [CookieController::class, 'clearCookie']);
+// Route Group Controller
+Route::controller(CookieController::class)->group(function () {
+    // Cookie
+    Route::get('/cookie/set', 'createCookie');
+    Route::get('/cookie/get', 'getCookie');
+    Route::get('/cookie/clear', 'clearCookie');
+});
 
 // Redirect
 Route::get('/redirect/from', [RedirectController::class, 'redirectFrom']);
@@ -118,23 +126,53 @@ Route::get('/redirect/to', [RedirectController::class, 'redirectTo']);
 
 Route::get('/redirect/name', [RedirectController::class, 'redirectName']);
 Route::get('/redirect/name/{name}', [RedirectController::class, 'redirectHello'])->name('redirect-hello');
+
+// URL Generation
+Route::get('/redirect/named', function () {
+    // ada tiga cara seperti dibawah ini
+    // return route('redirect-hello', ['name' => 'Evan']);
+    // return url()->route('redirect-hello', ['name' => 'Evan']);
+    return URL::route('redirect-hello', ['name' => 'Evan']);
+});
+
 // Redirect Action
 Route::get('/redirect/action', [RedirectController::class, 'redirectAction']);
 // Redirect Away
 Route::get('/redirect/away', [RedirectController::class, 'redirectAway']);
 
 
-// Middleware
-Route::get('/middleware/api', function () {
-    return "OK";
-})->middleware('contoh:PZN,401');
-// bisa juga langsung classmiddlewarenya ->middleware([ContohMiddleware::class])
+// Route Group Middleware dan Group Prefix (bisa jika ditambah controller jika ada controller yang sama)
+Route::middleware(['contoh:PZN,401'])->prefix('/middleware')->group(function () {
+    // Middleware
+    Route::get('/api', function () {
+        return "OK";
+    });
+    // bisa juga langsung classmiddlewarenya ->middleware([ContohMiddleware::class])
 
-// Middleware Group
-Route::get('/middleware/group', function () {
-    return "GROUP";
-})->middleware(['pzn']);
+    // Middleware Group
+    Route::get('/group', function () {
+        return "GROUP";
+    });
+});
+
+// URL Controller Action
+Route::get('/url/action', function () {
+    // ada tiga cara untuk menggunakan url action
+
+    // return action([FormController::class, 'form']);
+    // return url()->action([FormController::class, 'form']);
+    return URL::action([FormController::class, 'form']);
+});
 
 // CSRF
 Route::get('/form', [FormController::class, 'form']);
 Route::post('/form', [FormController::class, 'submitForm']);
+
+// URL
+Route::get('/url/current', function () {
+    return URL::full();
+});
+
+// Session
+Route::get('/session/create', [SessionController::class, 'createSession']);
+Route::get('/session/get', [SessionController::class, 'getSession']);
