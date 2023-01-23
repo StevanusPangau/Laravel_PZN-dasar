@@ -2,8 +2,12 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
 use Throwable;
+
+use function Termwind\render;
 
 class Handler extends ExceptionHandler
 {
@@ -22,7 +26,8 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        //
+        // contoh error yang tidak akan di report
+        ValidationException::class
     ];
 
     /**
@@ -44,7 +49,24 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            // jika terjadi error taru program disini misal untuk mengiriim ke telegram atau email kita
+            var_dump($e); // contoh, bisa dikirim ke email juga
+            return false; // gunakan return false jika tidak ingin reportable yang lain muncuk jika sudah diketahui errornya apa
+        });
+
+        // bisa lebih dari satu untuk reportablenya
+
+        // $this->reportable(function (Throwable $e) {
+        //     var_dump($e);
+        // });
+
+        // $this->reportable(function (Throwable $e) {
+        //     var_dump($e);
+        // });
+
+        // untuk mencampilkan view jika exception tidak di report
+        $this->renderable(function (ValidationException $exception, Request $request) {
+            return response("Bad Request", 400);
         });
     }
 }
